@@ -48,6 +48,10 @@ func devFund() -> (res: felt) {
 func fee() -> (res: felt) {
 }
 
+@storage_var
+func admin() -> (account: felt) {
+}
+
 @constructor
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _admin: felt, _contract_class: felt
@@ -57,6 +61,7 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 
     contract_class_hash.write(value=_contract_class);
     salt.write(1);
+    admin.write(_admin);
 
     return ();
 }
@@ -96,5 +101,35 @@ func createRounds{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
     return (address=newRound);
 }
 
-// setDevFund only Admin_Role.
-// setFee only Admin_Role.
+@external
+func setDevFund{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _devFundAddress: felt
+) {
+    AccessControl.assert_only_role(DEFAULT_ADMIN_ROLE);
+    devFund.write(_devFundAddress);
+
+    return ();
+}
+
+@external
+func getDevFund{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    address: felt
+) {
+    let (devFund) = devFund.read();
+
+    return (address=devFund);
+}
+
+@external
+func setFee{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_fee: Uint256) {
+    AccessControl.assert_only_role(DEFAULT_ADMIN_ROLE);
+    fee.write(_fee);
+
+    return ();
+}
+
+@external
+func getFee{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (fee: felt) {
+    let (fee) = fee.read();
+    return (fee);
+}
